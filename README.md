@@ -6,5 +6,3 @@ One Harbor App in Java
 Future Notes:
 
 -Custom Reporting.
-
--Select location and filename of Custom Report and Department Summary.
