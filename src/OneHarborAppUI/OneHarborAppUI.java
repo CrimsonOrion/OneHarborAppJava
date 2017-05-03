@@ -20,9 +20,6 @@ import one.harbor.app.CSVUtilities;
  */
 public class OneHarborAppUI extends javax.swing.JFrame {
     
-    static String partnerFileName = "custom_report.csv";
-    static String pastorFileName = "department_summary.csv";
-
     /**
      * Creates new form OneHarborAppUI
      */
@@ -47,7 +44,6 @@ public class OneHarborAppUI extends javax.swing.JFrame {
         OFD_CustomReportButton = new javax.swing.JButton();
         OFD_DeptSummaryButton = new javax.swing.JButton();
         ToggleOversightCSVButton = new javax.swing.JToggleButton();
-        jLabel3 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("One Harbor App");
@@ -69,11 +65,10 @@ public class OneHarborAppUI extends javax.swing.JFrame {
         CustomReportFileTextBox.setText("custom_report.csv");
         CustomReportFileTextBox.setEnabled(false);
 
-        DeptSummaryFileTextBox.setText("dept_summary.csv");
+        DeptSummaryFileTextBox.setText("department_summary.csv");
         DeptSummaryFileTextBox.setEnabled(false);
 
         OFD_CustomReportButton.setText("...");
-        OFD_CustomReportButton.setEnabled(false);
         OFD_CustomReportButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 OFD_CustomReportButtonActionPerformed(evt);
@@ -81,7 +76,6 @@ public class OneHarborAppUI extends javax.swing.JFrame {
         });
 
         OFD_DeptSummaryButton.setText("...");
-        OFD_DeptSummaryButton.setEnabled(false);
         OFD_DeptSummaryButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 OFD_DeptSummaryButtonActionPerformed(evt);
@@ -94,8 +88,6 @@ public class OneHarborAppUI extends javax.swing.JFrame {
                 ToggleOversightCSVButtonActionPerformed(evt);
             }
         });
-
-        jLabel3.setText("Make sure custom_report.csv and dept_summary.csv are in the \"One Harbor App.jar\" directory.");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -118,12 +110,9 @@ public class OneHarborAppUI extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(StartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel3))
+                            .addComponent(StartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(ToggleOversightCSVButton))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                        .addGap(0, 436, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -144,9 +133,7 @@ public class OneHarborAppUI extends javax.swing.JFrame {
                 .addGap(16, 16, 16)
                 .addComponent(ToggleOversightCSVButton)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(StartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
+                .addComponent(StartButton, javax.swing.GroupLayout.PREFERRED_SIZE, 58, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -154,21 +141,33 @@ public class OneHarborAppUI extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void StartButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_StartButtonActionPerformed
-        //String  partnerFileName = CustomReportFileTextBox.getText();
-        //String  pastorFileName = DeptSummaryFileTextBox.getText();        
+        
         Boolean makeOversightCSVs = ToggleOversightCSVButton.isSelected();
-        try {            
-            // TODO add your handling code here:
-            CSVUtilities.CreateMemberInfo(partnerFileName, pastorFileName);
-        } catch (IOException ex) {
-            Logger.getLogger(OneHarborAppUI.class.getName()).log(Level.SEVERE, null, ex);
+        File ifExists = new File(CustomReportFileTextBox.getText());
+        if(ifExists.exists() && !ifExists.isDirectory()){
+            ifExists = new File(DeptSummaryFileTextBox.getText());
+            if(ifExists.exists() && !ifExists.isDirectory()){
+                try {            
+                    // TODO add your handling code here:
+                    CSVUtilities.CreateMemberInfo(CustomReportFileTextBox.getText(), DeptSummaryFileTextBox.getText());
+                } catch (IOException ex) {
+                    Logger.getLogger(OneHarborAppUI.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                try {
+                    CSVUtilities.WorkWithOHPSDatabase(CustomReportFileTextBox.getText(), DeptSummaryFileTextBox.getText(), makeOversightCSVs);
+                } catch (SQLException ex) {
+                    Logger.getLogger(OneHarborAppUI.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(OneHarborAppUI.class.getName()).log(Level.SEVERE, null, ex);
+                }        
+                MessageBox.InfoBox("Completed File Creation.", "Done");
+            }
+            else{
+                MessageBox.ErrorBox("Dept. Summary file doesn't exist.", "No Dept. Summary CSV");
+            }            
         }
-        try {
-            CSVUtilities.WorkWithOHPSDatabase(partnerFileName, pastorFileName, makeOversightCSVs);
-        } catch (SQLException ex) {
-            Logger.getLogger(OneHarborAppUI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(OneHarborAppUI.class.getName()).log(Level.SEVERE, null, ex);
+        else{
+            MessageBox.ErrorBox("Custom Report file doesn't exist.", "No Custom Report CSV");
         }
     }//GEN-LAST:event_StartButtonActionPerformed
 
@@ -241,7 +240,7 @@ public class OneHarborAppUI extends javax.swing.JFrame {
 
             @Override
             public String getDescription() {
-                return "A CSV file.";
+                return "CSV Files | (*.csv)";
             }
 
             @Override
@@ -262,6 +261,7 @@ public class OneHarborAppUI extends javax.swing.JFrame {
             } catch (IOException e) {
                 // TODO Auto-generated catch block                
                 e.printStackTrace();
+                MessageBox.ErrorBox("Error in JFileChooser.", "Error", e);
                 return null;
             }finally{
                 return file.getCanonicalPath();
@@ -279,6 +279,5 @@ public class OneHarborAppUI extends javax.swing.JFrame {
     private javax.swing.JToggleButton ToggleOversightCSVButton;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     // End of variables declaration//GEN-END:variables
 }

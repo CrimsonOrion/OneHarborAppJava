@@ -5,6 +5,7 @@
  */
 package one.harbor.app;
 import OneHarborAppUI.OneHarborAppUI;
+import OneHarborAppUI.MessageBox;
 import javax.swing.UIManager;
 
 /**
@@ -25,6 +26,7 @@ public class OneHarborApp {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             e.printStackTrace();
+            MessageBox.ErrorBox("Uh, oh.  Something didn't go right.", "Error", e);
         }
 
         // Open up the main window

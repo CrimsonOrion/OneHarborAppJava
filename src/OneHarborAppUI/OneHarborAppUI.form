@@ -45,14 +45,10 @@
                   <Group type="102" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="StartButton" min="-2" pref="99" max="-2" attributes="0"/>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="StartButton" alignment="0" min="-2" pref="99" max="-2" attributes="0"/>
                           <Component id="ToggleOversightCSVButton" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
+                      <EmptySpace min="0" pref="436" max="32767" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -79,10 +75,7 @@
               <EmptySpace min="-2" pref="16" max="-2" attributes="0"/>
               <Component id="ToggleOversightCSVButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace type="separate" max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="StartButton" min="-2" pref="58" max="-2" attributes="0"/>
-                  <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
-              </Group>
+              <Component id="StartButton" min="-2" pref="58" max="-2" attributes="0"/>
               <EmptySpace max="32767" attributes="0"/>
           </Group>
       </Group>
@@ -124,14 +117,13 @@
     </Component>
     <Component class="javax.swing.JTextField" name="DeptSummaryFileTextBox">
       <Properties>
-        <Property name="text" type="java.lang.String" value="dept_summary.csv"/>
+        <Property name="text" type="java.lang.String" value="department_summary.csv"/>
         <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JButton" name="OFD_CustomReportButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="..."/>
-        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="OFD_CustomReportButtonActionPerformed"/>
@@ -140,7 +132,6 @@
     <Component class="javax.swing.JButton" name="OFD_DeptSummaryButton">
       <Properties>
         <Property name="text" type="java.lang.String" value="..."/>
-        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="OFD_DeptSummaryButtonActionPerformed"/>
@@ -153,11 +144,6 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="ToggleOversightCSVButtonActionPerformed"/>
       </Events>
-    </Component>
-    <Component class="javax.swing.JLabel" name="jLabel3">
-      <Properties>
-        <Property name="text" type="java.lang.String" value="Make sure custom_report.csv and dept_summary.csv are in the &quot;One Harbor App.jar&quot; directory."/>
-      </Properties>
     </Component>
   </SubComponents>
 </Form>

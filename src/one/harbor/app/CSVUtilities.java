@@ -5,6 +5,7 @@
  */
 package one.harbor.app;
 
+import OneHarborAppUI.MessageBox;
 import com.opencsv.CSVReader;// DL the .jar, right click Project > Properties > Libraries > Add Jar
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -117,6 +118,7 @@ public class CSVUtilities {
         }
         catch (IOException ex)
         {
+            MessageBox.ErrorBox("IO Error in CreateMemberInfo()", "Error", ex);
         }
         finally
         {
@@ -163,10 +165,12 @@ public class CSVUtilities {
          // This tells me there's an error with this member.
          catch (FileNotFoundException e){
              System.out.println("File not Found");
+             MessageBox.ErrorBox("Dept. Summary file not found in GetOversigherPastor().", "Error", e);
              return oversightPastor;
          }
          catch (IOException ex) {
              System.out.println(ex);
+             MessageBox.ErrorBox("IO Error in GetOversigherPastor().", "Error", ex);
              return oversightPastor;
          }
          finally{
@@ -197,16 +201,16 @@ public class CSVUtilities {
          final String   custReptTable = "tblCustomReport";              // Table name for Partners
          final String   deptSumTable = "tblDeptSummary";                // Table name for Pastors and Community Groups
          final String   memberInfoTable = "tblMemberInfo";              // Table name for Members information
-         /*String*/         custReptSource = "\"custom_report.csv\"";       // TEMP. Will change to property. For now, its the filename and location of the partner CSV
-         /*String*/         deptSumSource = "\"department_summary.csv\"";   // TEMP. Will change to property. For now, its the filename and location of the pastor CSV
-         String         memberInfoSource = "\"MemberInfo.csv\"";        // TEMP. Will change to property. For now, its the filename and location of the MemberInfo CSV
+         /*String         custReptSource = "\"custom_report.csv\"";       // TEMP. Will change to property. For now, its the filename and location of the partner CSV
+         /*String         deptSumSource = "\"department_summary.csv\"";   // TEMP. Will change to property. For now, its the filename and location of the pastor CSV
+         */String         memberInfoSource = "MemberInfo.csv";        // TEMP. Will change to property. For now, its the filename and location of the MemberInfo CSV
                   
          try{
              // These are commented out.  Use for debugging purposes.
              //ClearTable(OHPS_stmt, custReptTable);
              //ClearTable(OHPS_stmt, deptSumTable);
              //ClearTable(OHPS_stmt, memberInfoTable);
-             
+                          
              // Create the tables.
              // NOTE: if you don't drop the tables at the end, you don't HAVE to re-create them, as they'll be in the .script file.
              OHPS_stmt.executeUpdate("CREATE TEXT TABLE IF NOT EXISTS "+custReptTable+" ("
@@ -303,12 +307,13 @@ public class CSVUtilities {
      private static void CSVtoTable(Statement stmt, String tableName, String tableSourceCSV){
          // Populate tableName with the information found in the tableSourceCSV.
          try{
-             stmt.executeUpdate("SET TABLE "+tableName+" SOURCE "+tableSourceCSV);
-             System.out.println(tableSourceCSV + " added successfully to "+tableName+".");
+             stmt.executeUpdate("SET TABLE "+tableName+" SOURCE \""+tableSourceCSV+"\"");
+             System.out.println(tableSourceCSV + " added successfully to "+tableName+".");             
          }
          catch (SQLException ex){
              System.out.println("Problem in CSVtoTable.\r\n");
              ex.printStackTrace(System.out);
+             MessageBox.ErrorBox("Error in CSVtoTable().", "Error", ex);
          }
      }
      
