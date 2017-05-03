@@ -1,3 +1,17 @@
-gitignore.io help:
-  list    - lists the operating systems, programming languages and IDE input types
-  :types: - creates .gitignore files for types of operating systems, programming languages or IDEs
+*.class
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+# Other files that the program creates #
+*.csv
+*.xls
+*.xlsx
