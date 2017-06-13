@@ -18,6 +18,8 @@ import java.sql.*;
 /**
  *
  * @author eimi_
+ * 
+ * 06/12/17 - Added officeVolunteers, calicoCreek, familyPromise, communityGroupLeader and several edits based on feedback from Jesse Kincer.
  */
 public class CSVUtilities {
      /**
@@ -50,11 +52,15 @@ public class CSVUtilities {
                     // Set the Headers
                     info.setFullName("Full Name")
                             .setCommunityGroup("Community Group")
+                            .setCommunityGroupLeader("Community Group Leader")
                             .setHospitality("Hospitality")
                             .setKidsMinistry("Kids Ministry")
                             .setYouth("Youth")
                             .setMusicAndMedia("Music And Media")
                             .setBenevolence("Benevolence")
+                            .setOfficeVolunteers("Office Volunteers")
+                            .setCalicoCreek("Calico Creek")
+                            .setFamilyPromise("Family Promise")
                             .setOversightPastor("Oversight Pastor")
                             .setCommunity("Community")
                             .setServing("Serving")
@@ -65,34 +71,46 @@ public class CSVUtilities {
                     //continue;
                 }
                 else{
-                    // Set the group flags
+                    // Set the group flags EX: if ( groups.contains("TEXT") || groups.contains("TEXT") ) { info.GROUP("Yes"); }
                     for (String groups:_groups) {
                         groups = groups.trim();
-                        if (groups.contains("BFT Community") || groups.contains("MHC Community") || groups.contains("SBO Community") || groups.contains("Brandywine Community")) { info.setCommunity("Yes"); info.setCommunityGroup(groups); info.setOversightPastor(GetOversightPastor(groups, pastorFile));}
-                        if (groups.contains("Hospitality")) {info.setHospitality("Yes");}
-                        if (groups.contains("KM Volunteer") || groups.contains("Kids")) {info.setKidsMinistry("Yes");}
-                        if (groups.contains("Youth Leaders")) {info.setYouth("Yes");}
-                        if (groups.contains("Music")) {info.setMusicAndMedia("Yes");}
-                        if (groups.contains("Benevolence")) {info.setBenevolence("Yes");}
+                        if (groups.contains("BFT Community Group -") || groups.contains("MHC Community Group -") || groups.contains("SBO Community Group -")) { info.setCommunity("Yes"); info.setCommunityGroup(groups); /* **MOVED THIS TO AFTER THESE FIELDS ARE POPULTED** info.setOversightPastor(GetOversightPastor(groups, pastorFile)); */ }
+                        if (groups.contains("Community Group Leaders")) {info.setCommunityGroupLeader("Yes");}
+                        if (groups.contains("Hospitality Volunteers")) {info.setHospitality("Yes");}
+                        if (groups.contains("Kids Ministry Volunteers")) {info.setKidsMinistry("Yes");}
+                        if (groups.contains("Youth Leaders") || groups.contains("Youth Parents")) {info.setYouth("Yes");}
+                        if (groups.contains("Music+Media")) {info.setMusicAndMedia("Yes");}
+                        if (groups.contains("Benevolence Allies")) {info.setBenevolence("Yes");}
+                        if (groups.contains("Office Volunteers")) {info.setOfficeVolunteers("Yes");}
+                        if (groups.contains("Calico Creek")) {info.setCalicoCreek("Yes");}
+                        if (groups.contains("Family Promise")) {info.setFamilyPromise("Yes");}
                     }
-                    if (info.getHospitality().equals("Yes") || info.getKidsMinistry().equals("Yes") || info.getYouth().equals("Yes") || info.getMusicAndMedia().equals("Yes") || info.getBenevolence().equals("Yes")) {
+                    if (info.getCommunityGroupLeader().equals("Yes") || info.getHospitality().equals("Yes") || info.getKidsMinistry().equals("Yes") || info.getYouth().equals("Yes") || info.getMusicAndMedia().equals("Yes") || info.getBenevolence().equals("Yes") || info.getOfficeVolunteers().equals("Yes") || info.getCalicoCreek().equals("Yes") || info.getFamilyPromise().equals("Yes")) {
                         info.setServing("Yes");
                     }
+                    
                     info.setFullName(nextLinePartner[1].trim() + " " + nextLinePartner[0].trim())
                             .setSite(_site[1].trim())
                             .setFirstStepsDate(nextLinePartner[4].trim())
                             .setPartnershipClassDate(nextLinePartner[5].trim())
                             .setPartner(nextLinePartner[6].trim());
+                    
+                    // Populate Oversight Pastor field
+                    info.setOversightPastor(GetOversightPastor(info.getCommunityGroup(), info.getCommunityGroupLeader(), pastorFile));
                 }
                 
                 // Put everything in one string to be put into members collection
                 member = info.getFullName() + "," +
                         info.getCommunityGroup() + "," +
+                        info.getCommunityGroupLeader() + "," +
                         info.getHospitality() + "," +
                         info.getKidsMinistry() + "," +
                         info.getYouth() + "," +
                         info.getMusicAndMedia() + "," +
                         info.getBenevolence() + "," +
+                        info.getOfficeVolunteers() + "," +
+                        info.getCalicoCreek() + "," +
+                        info.getFamilyPromise() + "," +
                         info.getOversightPastor() + "," +
                         info.getCommunity() + "," +
                         info.getServing() + "," +
@@ -141,22 +159,24 @@ public class CSVUtilities {
       * @return The name of the Oversight Pastor for this Community Group.
       * @throws FileNotFoundException 
       */
-     private static String GetOversightPastor(String communityGroup, String pastorFile) throws FileNotFoundException
+     private static String GetOversightPastor(String communityGroup, String communityGroupLeader, String pastorFile) throws FileNotFoundException
      {
          String         oversightPastor = "None Found"; // the name of the Oversight Pastor
          CSVReader      pastorReader = null;            // Reader for the pastorFile
-         String[]       nextLinePastor;
+         String[]       nextLinePastor;                 // Each line in the Pastor File
          try {
              // Read the pastorFile and pick out the Oversight Pastor for each Community Group member.
              pastorReader = new CSVReader(new FileReader(pastorFile),',');
              while ((nextLinePastor = pastorReader.readNext()) != null){
-                 if (nextLinePastor[2].trim().equals(communityGroup.trim())) {
-                     oversightPastor = nextLinePastor[5].trim();
-                 }
                  // if the member's a Comm Group leader, make his Pastor Scott, until I can find some better way to get the right information...
-                 else if(communityGroup.contains("Leaders")){                     
-                     oversightPastor = "Scott Beierwaltes";
-                 }
+                 // 6/12/17 - May not be necessary anymore if they put each leader in their particular Comm Group, since technically, the oversight pastor is still THEIR OS pastor.
+                 // 6/13/17 - Remade this to look if the person is a CG leader AND isn't in a CG themselves.  If so, consider them an Oversight Pastor and make their OSP the Head OSP.
+                 if(communityGroupLeader.contains("Yes") && communityGroup.contains("None") && nextLinePastor[2].trim().equals("All Sites Community Group Leaders")) {                     
+                     oversightPastor = nextLinePastor[3].trim() + " (OSP)";
+                 }                 
+                 else if (nextLinePastor[2].trim().equals(communityGroup.trim())) {
+                     oversightPastor = nextLinePastor[5].trim();
+                 }                 
              }
              // Obviously, return the Oversight Pastor for the member.
              return oversightPastor;
@@ -206,10 +226,11 @@ public class CSVUtilities {
          */String         memberInfoSource = "MemberInfo.csv";        // TEMP. Will change to property. For now, its the filename and location of the MemberInfo CSV
                   
          try{
-             // These are commented out.  Use for debugging purposes.
-             //ClearTable(OHPS_stmt, custReptTable);
-             //ClearTable(OHPS_stmt, deptSumTable);
-             //ClearTable(OHPS_stmt, memberInfoTable);
+             /* These are commented out.  Use for debugging purposes.
+             ClearTable(OHPS_stmt, custReptTable);
+             ClearTable(OHPS_stmt, deptSumTable);
+             ClearTable(OHPS_stmt, memberInfoTable);
+             */
                           
              // Create the tables.
              // NOTE: if you don't drop the tables at the end, you don't HAVE to re-create them, as they'll be in the .script file.
@@ -240,11 +261,15 @@ public class CSVUtilities {
                      + "\"Index\" VARCHAR(5) NOT NULL,"
                      + "\"Full Name\" VARCHAR(50) NOT NULL,"
                      + "\"Community Group\" VARCHAR(50) NOT NULL,"
+                     + "\"CG Leader\" VARCHAR(10) NOT NULL,"
                      + "\"Hospitality\" VARCHAR(10) NOT NULL,"
                      + "\"Kids Ministry\" VARCHAR(10) NOT NULL,"
                      + "\"Youth\" VARCHAR(10) NOT NULL,"
                      + "\"Music and Media\" VARCHAR(10) NOT NULL,"
                      + "\"Benevolence\" VARCHAR(10) NOT NULL,"
+                     + "\"Office Volunteers\" VARCHAR(10) NOT NULL,"
+                     + "\"Calico Creek\" VARCHAR(10) NOT NULL,"
+                     + "\"Family Promise\" VARCHAR(10) NOT NULL,"
                      + "\"Oversight Pastor\" VARCHAR(50),"
                      + "\"Community\" VARCHAR(10) NOT NULL,"
                      + "\"Serving\" VARCHAR(10) NOT NULL,"
@@ -266,19 +291,19 @@ public class CSVUtilities {
              String[] groups = null;
              Statement s = OHPS_con.createStatement();             
              ResultSet pResult = s.executeQuery("SELECT first_name, last_name, groups FROM tblCustomReport");
-             FileWriter tWriter = new FileWriter(sGroup+".csv");
-             int index = 0;
-             
-             while(pResult.next()){
-                 fullName = pResult.getString("first_name")+" "+pResult.getString("last_name");
-                 groups = pResult.getString("groups").split(",");
-                 for(String group : groups){
-                     if(index==0){tWriter.write("Index,Full Name,Groups\r\n");}else{tWriter.write(index+","+fullName+","+group+"\r\n");}                                          
+             try (FileWriter tWriter = new FileWriter(sGroup+".csv")) {
+                 int index = 0;
+                 while (pResult.next()) {
+                     fullName = pResult.getString("first_name")+" "+pResult.getString("last_name");
+                     groups = pResult.getString("groups").split(",");
+                     for(String group : groups){
+                         if(index==0){tWriter.write("Index,Full Name,Groups\r\n");}else{tWriter.write(index+","+fullName.trim()+","+group.trim()+"\r\n");}
+                     }                                          
+                     index += 1;
                  }
-                 index += 1;
              }
-             tWriter.close();
              // END TEST
+             
              if(makeOversightCSV){
                  // Populate qResult with each Oversight Pastor name, then create a CSV with the MemberInfo for each of their Community Groups
                  qResult = OHPS_stmt.executeQuery("SELECT DISTINCT \"Oversight Pastor\" FROM "+memberInfoTable+" WHERE \"Oversight Pastor\" <> 'Oversight Pastor'");
